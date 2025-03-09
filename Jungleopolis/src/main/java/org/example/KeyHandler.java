@@ -24,6 +24,7 @@ public class KeyHandler implements KeyListener {
         }
         if (code == KeyEvent.VK_DOWN) {
             downKey = true;
+            System.out.println("pressed down key");///temporay
         }
         if (code == KeyEvent.VK_LEFT) {
             leftKey = true;

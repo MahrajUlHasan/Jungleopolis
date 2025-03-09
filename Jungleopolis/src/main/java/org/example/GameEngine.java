@@ -1,31 +1,42 @@
 package org.example;
 
+import entity.DynamicEntity;
+import entity.Entity;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class GameEngine extends JPanel implements Runnable {
     ///  Screen settings
-    final int tileUnit = 16; // 16x16 unit sized tiles
-    final int scale = 4; // scale the tiles are displayed
-    final int tileSize = tileUnit * scale; // actual size of tile 64x64 px
-    final int maxColNUm = 24; // number of tiles in the column
-    final int maxRowNUm = 13; // number of tiles in the row
-    final int screenWidth = maxColNUm * tileSize; //  1536 px
-    final int screenHeight = maxRowNUm * tileSize;//  824 px
+    final public int tileUnit = 16; // 16x16 unit sized tiles
+    final public int scale = 3; // scale the tiles are displayed
+    final public int tileSize = tileUnit * scale; // actual size of tile 64x64 px
+    final public int maxColNUm = 48; // number of tiles in the column
+    final public int maxRowNUm = 26; // number of tiles in the row
+    final public int screenWidth = maxColNUm * tileSize; //  1536 px
+    final public int screenHeight = maxRowNUm * tileSize;//  824 px
 
-    final int FPS = 60;
+    final public int FPS = 60;
 
-    Thread gameThread; // PROCESS THREAD FOR THE GAME LOOP
+    protected Thread gameThread; // PROCESS THREAD FOR THE GAME LOOP
 
-    Boolean paused = false;
+    protected Boolean paused = false;
 
-    KeyHandler keyHandler = new KeyHandler();
+    protected KeyHandler keyHandler = new KeyHandler();
 
-    ///    Temporary player sprite
-    Sprite player = new Sprite(100, 100, tileSize, tileSize);
+    protected MouseHandler mouseHandler = new MouseHandler(this);
+
+    protected MapSpace map;
+
+    ///    Temporary player DynamicEntity
+    DynamicEntity player = new DynamicEntity(this, keyHandler, mouseHandler);
     int px = 100;
     int py = 100;
+
     ///
+
+    protected boolean entitySelected = true;
+    protected Entity selectedEntity = player;
 
 
     /// ///////// INIT
@@ -42,6 +53,10 @@ public class GameEngine extends JPanel implements Runnable {
     public void startGameThread() {
         gameThread = new Thread(this);
         gameThread.start(); /// CALLS run() method
+        map = new MapSpace(this);
+        /// Temporary
+        map.addEnt(player);
+        ///
 
     }
 
@@ -64,7 +79,10 @@ public class GameEngine extends JPanel implements Runnable {
             timer += (currTime - lastTime);
             lastTime = currTime;
             if (delta >= 1) {
-                update();
+
+                if (!paused) {
+                    update();
+                }
                 repaint();
                 delta--;
                 drawCount++;
@@ -75,6 +93,17 @@ public class GameEngine extends JPanel implements Runnable {
                 drawCount = 0;
                 timer = 0;
             }
+
+            /// temporary mouse entity selection
+            if (mouseHandler.mClicked) {
+                selectedEntity = map.getEntityAt(mouseHandler.lastX, mouseHandler.lastY);
+                if (selectedEntity != null) {
+                    entitySelected = true;
+                    selectedEntity.select();
+                }
+
+            }
+            ///
 
 
         }
@@ -112,14 +141,7 @@ public class GameEngine extends JPanel implements Runnable {
 //        }
 //    }
     public void update() {
-        ///  temporary movement logic
-        if (keyHandler.upKey) {
-            player.move(player.x, player.y - 1);
-            py = py - 1;
-
-        }
-        ///
-
+        map.update(); ///temporary
     }
 
     public void paintComponent(Graphics g) {
@@ -128,7 +150,9 @@ public class GameEngine extends JPanel implements Runnable {
         g2d.setColor(Color.WHITE);
         /// temporary
         g2d.fillRect(px, py, tileSize, tileSize);
-        player.draw(g);
+//        player.draw(g2d);
+        map.paintComponents(g2d);
+
         ///
         g2d.dispose();
 
