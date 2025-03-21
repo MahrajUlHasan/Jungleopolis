@@ -1,12 +1,17 @@
 package entity;
 
 import org.example.GameEngine;
-import org.example.MouseHandler;
+import org.example.MapSpace;
 
 public class Building extends StaticEntity {
 
-    Building(GameEngine gameEngine, MouseHandler mouseHandler) {
-        super(gameEngine, mouseHandler);
+    public Building(GameEngine engine) {
+        super(engine);
 
+    }
+
+    public void spawn(MapSpace mapSpace) {
+        mapSpace.entities.add(this);
+        mapSpace.buildings.add(this);
     }
 }
