@@ -1,0 +1,35 @@
+image: maven:latest
+
+stages:
+  - build
+  - test
+  - package
+
+# Cache the Maven local repository to speed up builds.
+cache:
+  key: "$CI_PROJECT_ID"
+  paths:
+    - .m2/repository
+
+build:
+  stage: build
+  script:
+    # Clean and compile the source code.
+    - mvn clean compile
+
+test:
+  stage: test
+  script:
+    # Run unit tests.
+    - mvn test
+
+package:
+  stage: package
+  script:
+    # Package the project into a JAR file.
+    - mvn package
+  artifacts:
+    # Save the resulting jar as an artifact.
+    paths:
+      - target/*.jar
+      - echo "Linting complete."
